@@ -250,7 +250,51 @@ public void upgradeLevelS() throws Exception{
 ```
 
 
-jdbcTemplate과 트랜잭션 동기화란
+##### jdbcTemplate과 트랜잭션 동기화
+
+jdbcTemplate는 영리하게 동작함
+
+1. 미리 생성돼서 트랜잭션 동기화 저장소에 등록된 DB  커넥션이나 트랜잭션이 없는 경우
+  -> jdbcTemplat이 직접 DB 커넥션을 만들고 트랜잭션을 시작해서 JDBC 작업을 진행
+
+2. upgradeLevels() 메소드에서처럼 트랜잭션 동기화를 시작해 놓았을 경우
+  -> 직접  DB 커넥션을 만드는 대신 트랜잭션 동기화 저장소에 들어있는 DB 커넥션을 가져와서 사용한다
+
+비즈니스 로직 레벨의 트랜잭셕을 적용했지만 JdbcTemplate을 포기할 필요도 없고, 지저분한 Connection 파라미터를 계속 물고 다니지 않아도 된다.
+
+##### 트랜잭션 서비스 추상화
+
+만약 고객사가 여러개의 DB를 사용하고 있다 그래서 하나의 트랜잭션 안에서 여러 개의 DB에 데이터를 넣는 작업을 해야 할 필요가 발생했다.
+이런 경우는 별도의 트랜잭션 관리자를 통해 트랜잭션을 관리하는 **글로벌 트랜잭션 방식** 을 사용해야 한다.
+
+하나 이상의 DB가 참여하는 트랜잭션을 만들려면 **JTA**를 사용해야 한다
 
 
-이어서 추가하기
+```
+JTA를 이용한 트랜잭션 코드 구조
+
+InitialContext ctx = new InitialContext();
+UserTransaction tx = (UserTransaction)ctx.lookup(USER_TX_JNDI_NAME);
+
+tx.begin();
+Connection c = dataSource.getConnection();
+
+try{
+  // 데이터 액세스 코드
+  tx.commit();
+}catch(Exception e){
+  tx.rollback();
+  throw e;
+}finally{
+  c.close();
+}
+
+```
+
+하지만 UserService 코드가 바껴야 하는 단점이 있다. 그렇다면 트랜잭션 처리 코드에도 추상화를 도입해볼 수 있지 않을까?
+
+&#10004; 스프링은 트랜잭션 기술의 공통점을 담은 트랜잭션 추상화 기술을 제공하고 있다
+
+<br><br>
+
+![img3](./img/chap05_img03.jpg)
