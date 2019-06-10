@@ -225,16 +225,3 @@ public void add(User user) throws DuplicateUserIdException, 			SQLException {
       <property name="dataSource" ref="datasource"/>
   </bean>
   ```
-
-
-
-
-
-## --내용 추가 예정--
-
-#### 테스트보완
-
-##### <u>UserDao 인터페이스와 구현의 분리</u>
-
-#### DataAccessException 활용시 주의사항
-
