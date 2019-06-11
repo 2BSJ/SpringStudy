@@ -20,7 +20,7 @@
   3.	
       catch(SQLException e){
   		e.printStackTrace();
-  	}
+  	  }
   
   // 에러를 확인하기 위해 처리해준다고 하지만 다른 로그나 메시지에 금방 묻혀 버리면 무의미하다. 운영서버에 올라가면 더욱심각하다 2번, 3번은 예외를 처리한 것이 아니다.
   ```
@@ -96,7 +96,7 @@
           // 로그 출력
           throw e;
       }
-  }
+    }
   ```
 
 - 예외를 회피 할때에는 자신을 사용하는 쪽에서 예외를 다루는 게 최선의 방법이라는 분명한 확신이 있어야한다.
@@ -118,7 +118,7 @@
 ##### 		<u>예외 전환 기능을 가진 DAO 메소드</u>
 
 ```java
-public void add(User user) throws DuplicateUserIdException, 			SQLException {
+public void add(User user) throws DuplicateUserIdException, SQLException {
     try{
         // JDBC를 이용해 user 정보를 DB에 추가하는 코드 또는
         // 그런 기능을 가진 다른 SQL Exception을 던지는 메소드를 호출하는 코드 
@@ -126,7 +126,7 @@ public void add(User user) throws DuplicateUserIdException, 			SQLException {
     catch(SQLException e){
         // ErrorCode가 MySQL의 "Duplicate Entry(1062)"이면 예외 전환
         if(e.getEorrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY)
-            throw DuplicateUserIdException();
+            throw new DuplicateUserIdException();
         else
             throw e; // 그 외의 경우는 SQLException 그대로 던짐
     }
@@ -143,7 +143,7 @@ public void add(User user) throws DuplicateUserIdException, 			SQLException {
 
 #### 	JDBC의 한계
 
-- **JDBC는 자바를 이용해 DB에 접근하는 방법을 추상화된 API 형태로 정희해놓고 각DB업체가 JDBC표준을 따라 만들어진 드라이버를 제공**하게 해준다. 내부 구현은 DB마다 다르겠지만 JDBC의 Connection, Statement, ResultSEt 등의 표준 인터페이스를 통해 그 기능을 제공해주기 때문에 자바 개발자들은 표준화된 JDBC의 API에만 익숙해지면 DB의 종류와 무관하게 일관된 방법으로 프로그램을 개발할 수 있다.
+- **JDBC는 자바를 이용해 DB에 접근하는 방법을 추상화된 API 형태로 정해놓고 각DB업체가 JDBC표준을 따라 만들어진 드라이버를 제공**하게 해준다. 내부 구현은 DB마다 다르겠지만 JDBC의 Connection, Statement, ResultSEt 등의 표준 인터페이스를 통해 그 기능을 제공해주기 때문에 자바 개발자들은 표준화된 JDBC의 API에만 익숙해지면 DB의 종류와 무관하게 일관된 방법으로 프로그램을 개발할 수 있다.
 
 - 하지만 JDBC에도 한계가 있다. 첫번째로 JDBC 코드에서 사용하는 SQL 이다 SQL은 어느정도 표준화된 언어이고 몇가지 표준 규약이 있긴하지만 **각 데이터베이스 마다의 문법을 폭넓게 변화시킨 비표준 SQL 문장이 있기 때문에 자바 개발자들은 각 데이터베이스를 사용할때마다 달라진 쿼리문을 접해야 하기때문에 문제가된다**.
 
